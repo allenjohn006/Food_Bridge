@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "FoodBridge — Debug",
+            "request": "launch",
+            "mainClass": "foodbridge.Main",
+            "projectName": "FoodBridge",
+            "classPaths": ["${workspaceFolder}/out", "${workspaceFolder}/lib/*"],
+            "console": "integratedTerminal"
+        }
+    ]
+}

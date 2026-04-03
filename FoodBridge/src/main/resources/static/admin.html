@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Admin Control Room</h1>
+    <div class="topbar-actions">
+      <span id="whoami"></span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main class="grid-two">
+    <section class="panel">
+      <h2>Platform Stats</h2>
+      <div id="statsCards" class="cards"></div>
+      <button id="expireNow" class="cta">Run Expiry Sweep</button>
+      <p id="adminMsg" class="msg"></p>
+    </section>
+
+    <section class="panel">
+      <h2>NGO Request Board</h2>
+      <div id="adminRequests" class="cards"></div>
+    </section>
+
+    <section class="panel wide">
+      <h2>Users</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody id="adminUsers"></tbody>
+      </table>
+    </section>
+
+    <section class="panel wide">
+      <h2>All Donations</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Donor</th>
+            <th>Food</th>
+            <th>Qty</th>
+            <th>Status</th>
+            <th>Expiry</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody id="adminDonations"></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

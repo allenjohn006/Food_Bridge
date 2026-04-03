@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FoodBridge Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="auth-bg">
+  <main class="auth-shell">
+    <section class="hero-card">
+      <h1>FoodBridge</h1>
+      <p>A live donation platform connecting hotels, NGOs, and admins in one real-time ecosystem.</p>
+      <div class="pill-row">
+        <span>Live NGO requests</span>
+        <span>Donor fulfillment</span>
+        <span>Admin control</span>
+      </div>
+    </section>
+
+    <section class="auth-card">
+      <div class="tabs">
+        <button id="loginTab" class="tab active">Login</button>
+        <button id="registerTab" class="tab">Register</button>
+      </div>
+
+      <form id="loginForm" class="form-grid">
+        <label>Role</label>
+        <select id="loginRole">
+          <option value="DONOR">Donor</option>
+          <option value="NGO">NGO</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+        <label>Email</label>
+        <input id="loginEmail" type="email" required />
+        <label>Password</label>
+        <input id="loginPassword" type="password" required />
+        <button type="submit" class="cta">Enter Platform</button>
+      </form>
+
+      <form id="registerForm" class="form-grid hidden">
+        <label>Role</label>
+        <select id="regRole">
+          <option value="DONOR">Donor</option>
+          <option value="NGO">NGO</option>
+        </select>
+        <label>Name / Organization</label>
+        <input id="regName" required />
+        <label>Phone</label>
+        <input id="regPhone" required />
+        <label>Email</label>
+        <input id="regEmail" type="email" required />
+        <label>Password</label>
+        <input id="regPassword" type="password" required />
+        <button type="submit" class="cta">Create Account</button>
+      </form>
+
+      <p id="authMsg" class="msg"></p>
+      <p class="hint">Demo admin: admin@foodbridge.com / admin123</p>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

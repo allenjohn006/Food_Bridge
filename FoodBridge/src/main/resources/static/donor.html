@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donor Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Donor Dashboard</h1>
+    <div class="topbar-actions">
+      <span id="whoami"></span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main class="grid-two">
+    <section class="panel">
+      <h2>Add Donation</h2>
+      <form id="donationForm" class="form-grid">
+        <label>Food Item</label>
+        <input id="itemName" required />
+        <label>Quantity</label>
+        <input id="quantity" placeholder="5 kg or 20 portions" required />
+        <label>Expiry (YYYY-MM-DD HH:MM)</label>
+        <input id="expiryAt" placeholder="2026-04-10 18:30" required />
+        <label>Fulfill NGO Request (optional)</label>
+        <select id="requestId"></select>
+        <button type="submit" class="cta">Post Donation</button>
+      </form>
+      <p id="donorMsg" class="msg"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Live NGO Requests</h2>
+      <div id="openRequests" class="cards"></div>
+    </section>
+
+    <section class="panel wide">
+      <h2>My Donations</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Food</th>
+            <th>Category</th>
+            <th>Qty</th>
+            <th>Expiry</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="donorDonations"></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
