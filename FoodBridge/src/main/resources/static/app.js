@@ -90,22 +90,37 @@ if (window.location.pathname.endsWith('/donor.html')) {
   const requestSelect = byId('requestId');
 
   async function loadRequests() {
-    const res = await api.get('/api/requests/open');
-    const wrap = byId('openRequests');
-    wrap.innerHTML = '';
-    requestSelect.innerHTML = '<option value="">None</option>';
+    try {
+      const res = await api.get('/api/requests/open');
+      const wrap = byId('openRequests');
+      wrap.innerHTML = '';
+      requestSelect.innerHTML = '<option value="">None</option>';
 
-    res.data.forEach(r => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `<strong>${r.item_name}</strong> <span class="meta">(${r.quantity_needed})</span><div class="meta">${r.ngo_name} | ${r.notes || ''}</div>`;
-      wrap.appendChild(card);
+      if (!res.ok || !res.data) {
+        console.log('Failed to load requests or empty response');
+        return;
+      }
 
-      const opt = document.createElement('option');
-      opt.value = r.request_id;
-      opt.textContent = `#${r.request_id} ${r.ngo_name} -> ${r.item_name} (${r.quantity_needed})`;
-      requestSelect.appendChild(opt);
-    });
+      if (res.data.length === 0) {
+        wrap.innerHTML = '<div class="meta" style="padding: 20px; text-align: center;">No open requests</div>';
+        return;
+      }
+
+      res.data.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<strong>${r.item_name}</strong> <span class="meta">(${r.quantity_needed})</span><div class="meta">${r.ngo_name} | ${r.notes || ''}</div>`;
+        wrap.appendChild(card);
+
+        const opt = document.createElement('option');
+        opt.value = r.request_id;
+        opt.textContent = `#${r.request_id} ${r.ngo_name} -> ${r.item_name} (${r.quantity_needed})`;
+        requestSelect.appendChild(opt);
+      });
+      console.log('Loaded ' + res.data.length + ' open requests');
+    } catch (err) {
+      console.error('Error loading requests:', err);
+    }
   }
 
   async function loadDonations() {
@@ -123,11 +138,11 @@ if (window.location.pathname.endsWith('/donor.html')) {
     e.preventDefault();
     const requestIdRaw = requestSelect.value;
     const payload = {
-      donor_id: me.user_id,
-      item_name: byId('itemName').value,
+      donorId: me.user_id,
+      itemName: byId('itemName').value,
       quantity: byId('quantity').value,
-      expiry_at: byId('expiryAt').value,
-      request_id: requestIdRaw ? parseInt(requestIdRaw, 10) : null
+      expiryAt: byId('expiryAt').value,
+      requestId: requestIdRaw ? parseInt(requestIdRaw, 10) : null
     };
 
     const res = await api.post('/api/donations', payload);
@@ -141,7 +156,8 @@ if (window.location.pathname.endsWith('/donor.html')) {
 
   loadRequests();
   loadDonations();
-  setInterval(loadRequests, 4000);
+  setInterval(loadRequests, 2000);
+  setInterval(loadDonations, 2000);
 }
 
 if (window.location.pathname.endsWith('/ngo.html')) {
@@ -151,27 +167,42 @@ if (window.location.pathname.endsWith('/ngo.html')) {
   const msg = byId('ngoMsg');
 
   async function loadAvailable() {
-    const res = await api.get('/api/donations/available');
-    const wrap = byId('availableDonations');
-    wrap.innerHTML = '';
+    try {
+      const res = await api.get('/api/donations/available');
+      const wrap = byId('availableDonations');
+      wrap.innerHTML = '';
 
-    res.data.forEach(d => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <strong>${d.item_name}</strong>
-        <div class="meta">Donor: ${d.donor_name}</div>
-        <div class="meta">Qty: ${d.quantity} | Expiry: ${d.expiry_at}</div>
-        <button data-id="${d.donation_id}">Claim</button>
-      `;
-      card.querySelector('button').addEventListener('click', async () => {
-        const claimRes = await api.post(`/api/donations/${d.donation_id}/claim`, { ngo_id: me.user_id });
-        msg.textContent = claimRes.data.message;
-        await loadAvailable();
-        await loadClaims();
+      if (!res.ok || !res.data) {
+        console.log('Failed to load available donations');
+        return;
+      }
+
+      if (res.data.length === 0) {
+        wrap.innerHTML = '<div class="meta" style="padding: 20px; text-align: center;">No available donations</div>';
+        return;
+      }
+
+      res.data.forEach(d => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <strong>${d.item_name}</strong>
+          <div class="meta">Donor: ${d.donor_name}</div>
+          <div class="meta">Qty: ${d.quantity} | Expiry: ${d.expiry_at}</div>
+          <button data-id="${d.donation_id}">Claim</button>
+        `;
+        card.querySelector('button').addEventListener('click', async () => {
+          const claimRes = await api.post(`/api/donations/${d.donation_id}/claim`, { ngoId: me.user_id });
+          msg.textContent = claimRes.data.message;
+          await loadAvailable();
+          await loadClaims();
+        });
+        wrap.appendChild(card);
       });
-      wrap.appendChild(card);
-    });
+      console.log('Loaded ' + res.data.length + ' available donations');
+    } catch (err) {
+      console.error('Error loading available donations:', err);
+    }
   }
 
   async function loadClaims() {
@@ -188,20 +219,24 @@ if (window.location.pathname.endsWith('/ngo.html')) {
   byId('needForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const payload = {
-      ngo_id: me.user_id,
-      item_name: byId('needItem').value,
-      quantity_needed: byId('needQty').value,
+      ngoId: me.user_id,
+      itemName: byId('needItem').value,
+      quantityNeeded: byId('needQty').value,
       notes: byId('needNotes').value
     };
     const res = await api.post('/api/ngo/requests', payload);
     msg.textContent = res.data.message;
-    if (res.ok) byId('needForm').reset();
+    if (res.ok) {
+      byId('needForm').reset();
+      await loadAvailable();
+      await loadClaims();
+    }
   });
 
   loadAvailable();
   loadClaims();
-  setInterval(loadAvailable, 4000);
-  setInterval(loadClaims, 9000);
+  setInterval(loadAvailable, 2000);
+  setInterval(loadClaims, 2000);
 }
 
 if (window.location.pathname.endsWith('/admin.html')) {
@@ -269,6 +304,8 @@ if (window.location.pathname.endsWith('/admin.html')) {
   loadUsers();
   loadDonations();
   loadRequests();
-  setInterval(loadStats, 5000);
-  setInterval(loadRequests, 5000);
+  setInterval(loadStats, 3000);
+  setInterval(loadUsers, 3000);
+  setInterval(loadDonations, 3000);
+  setInterval(loadRequests, 3000);
 }

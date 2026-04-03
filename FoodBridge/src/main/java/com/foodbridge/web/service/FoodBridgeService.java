@@ -49,6 +49,7 @@ public class FoodBridgeService {
     }
 
     public List<Map<String, Object>> getAvailableDonations() {
+        autoExpireDonations();
         String sql = """
                 SELECT dp.donation_id, dp.donor_id, u.name AS donor_name,
                        fi.item_name, fi.category, dp.quantity,
@@ -64,6 +65,7 @@ public class FoodBridgeService {
     }
 
     public List<Map<String, Object>> getDonorDonations(int donorId) {
+        autoExpireDonations();
         String sql = """
                 SELECT dp.donation_id, dp.donor_id, u.name AS donor_name,
                        fi.item_name, fi.category, dp.quantity,
@@ -192,6 +194,7 @@ public class FoodBridgeService {
     }
 
     public Map<String, Object> getPlatformStats() {
+                autoExpireDonations();
         String sql = """
                 SELECT
                   COUNT(*) AS total_donations,
@@ -240,6 +243,7 @@ public class FoodBridgeService {
     }
 
     public List<Map<String, Object>> getAllDonations() {
+        autoExpireDonations();
         String sql = """
                 SELECT dp.donation_id, u.name AS donor_name, fi.item_name, dp.quantity, dp.status,
                        DATE_FORMAT(dp.expiry_at, '%d-%m-%Y %H:%i') AS expiry_at,
