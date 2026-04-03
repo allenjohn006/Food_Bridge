@@ -1,9 +1,0 @@
-com\foodbridge\web\dto\ClaimRequest.class
-com\foodbridge\web\dto\NgoNeedRequest.class
-com\foodbridge\web\service\FoodBridgeService.class
-com\foodbridge\web\FoodBridgeWebApplication.class
-com\foodbridge\web\dto\AddDonationRequest.class
-com\foodbridge\web\dto\RegisterRequest.class
-com\foodbridge\web\service\DatabaseBootstrap.class
-com\foodbridge\web\controller\ApiController.class
-com\foodbridge\web\dto\AuthRequest.class
