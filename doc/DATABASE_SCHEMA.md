@@ -19,6 +19,7 @@ Complete documentation of the database structure, relationships, and normalizati
 | Donation_Pool | **Core table** - all donations | 6 |
 | Claims | Tracks which donations NGOs claimed | 1 |
 | Impact_Log | Analytics - meals fed per donation | 1 |
+| NGO_Requests | Tracks food requests made by NGOs | 2 |
 
 ---
 
@@ -238,31 +239,76 @@ INSERT INTO Impact_Log VALUES
 
 ---
 
+## Table 6: NGO_Requests
+
+Tracks **food requests** made by NGOs. Can be fulfilled by donations dynamically.
+
+### Schema
+
+```sql
+CREATE TABLE NGO_Requests (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    ngo_id INT NOT NULL,
+    item_name VARCHAR(100) NOT NULL,
+    quantity_needed VARCHAR(50) NOT NULL,
+    notes VARCHAR(255),
+    status ENUM('OPEN', 'FULFILLED', 'CANCELLED') DEFAULT 'OPEN',
+    fulfilled_donation_id INT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ngo_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (fulfilled_donation_id) REFERENCES Donation_Pool(donation_id) ON DELETE SET NULL
+);
+```
+
+### Columns
+
+| Column | Type | Constraints | Purpose |
+|--------|------|-------------|---------|
+| request_id | INT | PK, AUTO_INCREMENT | Unique request ID |
+| ngo_id | INT | FK → Users | Which NGO made the request |
+| item_name | VARCHAR(100) | NOT NULL | What food is needed |
+| quantity_needed | VARCHAR(50) | NOT NULL | E.g., "20 portions" |
+| notes | VARCHAR(255) | - | Additional details |
+| status | ENUM | DEFAULT 'OPEN' | Status: OPEN / FULFILLED / CANCELLED |
+| fulfilled_donation_id | INT | FK → Donation_Pool | Which donation fulfilled this |
+| created_at | DATETIME | DEFAULT NOW() | Timestamp of request |
+
+### Sample Data
+
+```sql
+INSERT INTO NGO_Requests VALUES
+(1, 3, 'Cooked Rice', '20 portions', 'For evening shelter service', 'OPEN', NULL, NOW()),
+(2, 4, 'Bread', '30 loaves', 'Morning distribution drive', 'OPEN', NULL, NOW());
+```
+
+---
+
 ## 🔗 Relationships Diagram
 
 ```mermaid
 erDiagram
-    USERS ||--o{ DONATION_POOL : donates
-    USERS ||--o{ NGO_REQUESTS : creates
-    USERS ||--o{ CLAIMS : makes
-    FOOD_ITEMS ||--o{ DONATION_POOL : contains
-    DONATION_POOL ||--|| CLAIMS : "claimed_by"
-    DONATION_POOL ||--|| IMPACT_LOG : "tracks"
-    NGO_REQUESTS }o--|| DONATION_POOL : "fulfilled_by"
+    USERS ||--o{ DONATION_POOL : "makes (donor)"
+    USERS ||--o{ NGO_REQUESTS : "creates (ngo)"
+    USERS ||--o{ CLAIMS : "claims (ngo)"
+    FOOD_ITEMS ||--o{ DONATION_POOL : "is item for"
+    DONATION_POOL ||--o| CLAIMS : "has 1 claim"
+    DONATION_POOL ||--o| IMPACT_LOG : "has 1 impact log"
+    NGO_REQUESTS |o--o| DONATION_POOL : "fulfilled by"
+    NGO_REQUESTS ||--o{ DONATION_POOL : "answered with (request_id)"
 
     USERS {
         int user_id PK
-        string name
+        varchar name
         enum role "DONOR, NGO, ADMIN"
-        string phone
-        string email "Unique"
-        string password
+        varchar phone
+        varchar email "Unique"
+        varchar password
         datetime created_at
     }
 
     FOOD_ITEMS {
         int item_id PK
-        string item_name
+        varchar item_name
         enum category "VEG, NON-VEG, BEVERAGE, BAKERY, OTHER"
     }
 
@@ -270,19 +316,19 @@ erDiagram
         int donation_id PK
         int donor_id FK
         int item_id FK
-        string quantity
+        varchar quantity
         datetime expiry_at
         enum status "AVAILABLE, CLAIMED, EXPIRED"
-        int request_id FK
+        int request_id "logical FK"
         datetime created_at
     }
 
     NGO_REQUESTS {
         int request_id PK
         int ngo_id FK
-        string item_name
-        string quantity_needed
-        string notes
+        varchar item_name
+        varchar quantity_needed
+        varchar notes
         enum status "OPEN, FULFILLED, CANCELLED"
         int fulfilled_donation_id FK
         datetime created_at
