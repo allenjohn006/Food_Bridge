@@ -255,7 +255,7 @@ erDiagram
         string name
         enum role "DONOR, NGO, ADMIN"
         string phone
-        string email UK
+        string email "Unique"
         string password
         datetime created_at
     }
@@ -290,14 +290,14 @@ erDiagram
 
     CLAIMS {
         int claim_id PK
-        int donation_id FK UK
+        int donation_id FK "Unique"
         int ngo_id FK
         datetime claim_time
     }
 
     IMPACT_LOG {
         int log_id PK
-        int donation_id FK UK
+        int donation_id FK "Unique"
         int meals_fed
         datetime logged_at
     }
