@@ -88,24 +88,33 @@ if (window.location.pathname.endsWith('/donor.html')) {
 
   const msg = byId('donorMsg');
   const requestSelect = byId('requestId');
+  let selectedRequestId = '';
+
+  requestSelect.addEventListener('change', () => {
+    selectedRequestId = requestSelect.value;
+  });
 
   async function loadRequests() {
     try {
       const res = await api.get('/api/requests/open');
       const wrap = byId('openRequests');
-      wrap.innerHTML = '';
-      requestSelect.innerHTML = '<option value="">None</option>';
+      const previousValue = selectedRequestId || requestSelect.value;
 
       if (!res.ok || !res.data) {
         console.log('Failed to load requests or empty response');
         return;
       }
 
+      wrap.innerHTML = '';
+      requestSelect.innerHTML = '<option value="">None</option>';
+
       if (res.data.length === 0) {
         wrap.innerHTML = '<div class="meta" style="padding: 20px; text-align: center;">No open requests</div>';
+        selectedRequestId = '';
         return;
       }
 
+      let previousStillExists = false;
       res.data.forEach(r => {
         const card = document.createElement('div');
         card.className = 'card';
@@ -116,7 +125,19 @@ if (window.location.pathname.endsWith('/donor.html')) {
         opt.value = r.request_id;
         opt.textContent = `#${r.request_id} ${r.ngo_name} -> ${r.item_name} (${r.quantity_needed})`;
         requestSelect.appendChild(opt);
+
+        if (String(r.request_id) === String(previousValue)) {
+          previousStillExists = true;
+        }
       });
+
+      if (previousStillExists) {
+        requestSelect.value = String(previousValue);
+        selectedRequestId = requestSelect.value;
+      } else {
+        selectedRequestId = '';
+      }
+      
       console.log('Loaded ' + res.data.length + ' open requests');
     } catch (err) {
       console.error('Error loading requests:', err);
@@ -136,7 +157,7 @@ if (window.location.pathname.endsWith('/donor.html')) {
 
   byId('donationForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const requestIdRaw = requestSelect.value;
+    const requestIdRaw = selectedRequestId || requestSelect.value;
     const payload = {
       donorId: me.user_id,
       itemName: byId('itemName').value,
@@ -149,6 +170,7 @@ if (window.location.pathname.endsWith('/donor.html')) {
     msg.textContent = res.data.message;
     if (res.ok) {
       byId('donationForm').reset();
+      selectedRequestId = '';
       await loadDonations();
       await loadRequests();
     }

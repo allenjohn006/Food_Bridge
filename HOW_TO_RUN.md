@@ -1,37 +1,76 @@
 # How to Run FoodBridge
 
-This guide explains how to build and run the FoodBridge application, which includes both a **web-based interface** (Spring Boot) and a **CLI interface** (Terminal-based).
+FoodBridge is a **dual-interface** food donation platform:
+- 🌐 **Web Dashboard** — Modern browser-based UI (Spring Boot)
+- ⌨️ **CLI Interface** — Terminal-based UI (Java/JDBC)
+
+Both share the same database and show real-time updates!
+
+---
+
+## ⚡ Quick Start (Choose One)
+
+### 🌐 Web Application - SHORTCUT (FASTEST)
+```bash
+mvn spring-boot:run
+```
+**Then open:** `http://localhost:8080` (takes ~5-10 seconds)
+
+### ⌨️ CLI Application - SHORTCUT (ONE-LINER)
+```bash
+javac -encoding UTF-8 -cp lib\mysql-connector-j-9.6.0.jar -d out src\foodbridge\Main.java src\foodbridge\dao\*.java src\foodbridge\models\*.java src\foodbridge\ui\*.java && java -cp "out;lib\mysql-connector-j-9.6.0.jar" foodbridge.Main
+```
+
+---
+
+## 📌 Alternative Commands
+
+### 🌐 Web Application (Full Build)
+```bash
+cd c:\Users\allen\Downloads\FoodBridge
+mvn clean package -DskipTests
+java -jar target\foodbridge-web-1.0.0.jar
+```
+**Use when:** You want a deployable JAR file
+
+### ⌨️ CLI Application (Step-by-Step)
+```bash
+cd c:\Users\allen\Downloads\FoodBridge
+javac -encoding UTF-8 -cp lib\mysql-connector-j-9.6.0.jar -d out src\foodbridge\Main.java src\foodbridge\dao\*.java src\foodbridge\models\*.java src\foodbridge\ui\*.java
+java -cp "out;lib\mysql-connector-j-9.6.0.jar" foodbridge.Main
+```
+**Use when:** You want to debug compile and run separately
 
 ---
 
 ## 📋 Prerequisites
 
-Before running FoodBridge, ensure you have the following installed:
+Before running FoodBridge, ensure you have:
 
 ### Required Software
 - **Java 17+** — Check: `java -version`
 - **Maven 3.9+** — Check: `mvn -version`
-- **MySQL 8.0+** — Database server must be running
-- **Git** — For version control
+- **MySQL 8.0+** — Must be running
+- **Git** (optional) — For version control
 
-### Database Setup
-1. **Install MySQL** (if not already installed)
-   - Windows: Download from [mysql.com](https://dev.mysql.com/downloads/mysql/)
-   - Start MySQL Server
+### Database Setup (One-Time)
 
-2. **Create FoodBridge Database**
-   ```sql
+1. **Start MySQL Server**
+   - Windows: Open MySQL Command Line or workbench
+   - Ensure it's running before proceeding
+
+2. **Create Database & Tables**
+   ```bash
    mysql -u root -p < sql/schema.sql
    ```
-   This will:
-   - Create the `foodbridge` database
-   - Create required tables
-   - Insert sample data
+   - Creates `foodbridge_db` database
+   - Creates all tables (Users, Donation_Pool, NGO_Requests, Claims, Impact_Log)
+   - Inserts sample data with test users
 
-3. **Update Database Connection** (if needed)
-   - Edit `src/main/resources/application.properties`:
+3. **Verify Connection** (if having issues)
+   - Edit: `src/main/resources/application.properties`
    ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/foodbridge
+   spring.datasource.url=jdbc:mysql://localhost:3306/foodbridge_db
    spring.datasource.username=root
    spring.datasource.password=your_password
    ```
@@ -40,188 +79,222 @@ Before running FoodBridge, ensure you have the following installed:
 
 ## 🚀 Running the Web Application
 
-### Option 1: Using Maven (Recommended for Development)
+The web application runs on **Spring Boot** with embedded Tomcat server.
 
-1. **Navigate to project directory**
+### Method 1: Maven (Development - Recommended)
+
+1. **Start the application**
    ```bash
    cd c:\Users\allen\Downloads\FoodBridge
-   ```
-
-2. **Run using Maven**
-   ```bash
    mvn spring-boot:run
    ```
-   - Application starts on `http://localhost:8080`
-   - Press `Ctrl+C` to stop
+   - Wait for: `Started FoodBridgeWebApplication in X seconds`
+   - App runs on: `http://localhost:8080`
+   - Stop with: `Ctrl+C`
 
-### Option 2: Build JAR and Run
+### Method 2: Build & Run JAR (Production)
 
 1. **Build the project**
    ```bash
    mvn clean package -DskipTests
    ```
-   - Creates `target/foodbridge-web-1.0.0.jar` (~23MB)
-   - Takes ~8-10 seconds
+   - Output: `target/foodbridge-web-1.0.0.jar` (~23MB)
+   - Takes: ~10 seconds
 
 2. **Run the JAR**
    ```bash
    java -jar target\foodbridge-web-1.0.0.jar
    ```
-   - Application starts on `http://localhost:8080`
-   - Output will show: `Started FoodBridgeWebApplication in X seconds`
+   - App runs on: `http://localhost:8080`
+   - Stop with: `Ctrl+C`
 
-### Option 3: Using VS Code Tasks
-
-1. Open the Command Palette: `Ctrl+Shift+P`
-2. Select `Tasks: Run Task`
-3. Choose `Build and Run FoodBridge`
-4. OR choose `Run FoodBridge (Existing JAR)`
+### Method 3: VS Code Task (Optional)
+1. `Ctrl+Shift+P` → Tasks: Run Task
+2. Select "Build and Run FoodBridge"
 
 ---
 
-## 🌐 Accessing the Web Application
+## 🌐 Web Application Login
 
-### Login Credentials
+Once running on `http://localhost:8080`, use these test accounts:
 
-After the application starts on `http://localhost:8080`, use these test accounts:
+| Role | Email | Password | Purpose |
+|------|-------|----------|---------|
+| **Donor** | `saravana@donor.com` | `donor123` | Create & track donations |
+| **Donor 2** | `taj@donor.com` | `donor456` | (Alternative donor) |
+| **NGO** | `greenearth@ngo.com` | `ngo123` | Claim donations, view requests |
+| **NGO 2** | `helping@ngo.com` | `ngo456` | (Alternative NGO) |
+| **Admin** | `admin@foodbridge.com` | `admin123` | View analytics & platform stats |
 
-#### Donor Account
-- **Email:** `donor1@email.com`
-- **Password:** `password`
-- **Access:** Can donate food items
+### Web Dashboard URLs
 
-#### NGO Account
-- **Email:** `ngo1@email.com`
-- **Password:** `password`
-- **Access:** Can claim food donations and track meals fed
-
-#### Admin Account
-- **Email:** `admin@email.com`
-- **Password:** `password`
-- **Access:** View analytics, platform statistics, donation/claim history
-
-### Web Interface URLs
-
-| Role   | URL | Purpose |
-|--------|-----|---------|
-| Donor  | http://localhost:8080/donor.html | Create and track donations |
-| NGO    | http://localhost:8080/ngo.html | Claim donations, track meals |
-| Admin  | http://localhost:8080/admin.html | View analytics & platform stats |
-| Login  | http://localhost:8080 | Main login page |
+| Page | URL | What You Can Do |
+|------|-----|--------|
+| Login | http://localhost:8080 | Enter credentials |
+| Donor Dashboard | http://localhost:8080/donor.html | Create donations, view live NGO requests |
+| NGO Dashboard | http://localhost:8080/ngo.html | Claim donations, fulfill requests |
+| Admin Dashboard | http://localhost:8080/admin.html | View analytics, donation history |
 
 ---
 
 ## ⌨️ Running the CLI Application
 
-The CLI (Command-Line Interface) is the original terminal-based interface.
+The CLI (Command-Line Interface) is a terminal-based interface with the same features as the web app.
 
-### Prerequisites
-- Compile the CLI first:
-  ```bash
-  javac -d out src\foodbridge\*.java src\foodbridge\dao\*.java src\foodbridge\models\*.java src\foodbridge\ui\*.java
-  ```
+### 3-Step Setup & Run
 
-### Run the CLI
+**Step 1: Compile the CLI**
 ```bash
-java -cp out foodbridge.Main
+cd c:\Users\allen\Downloads\FoodBridge
+javac -encoding UTF-8 -cp lib\mysql-connector-j-9.6.0.jar -d out src\foodbridge\Main.java src\foodbridge\dao\*.java src\foodbridge\models\*.java src\foodbridge\ui\*.java
 ```
+- **Why UTF-8?** CLI uses Unicode characters (box borders: ╔══╗, emojis: 🍴🤝📊)
+- Windows default encoding (windows-1252) can't read these → compilation would fail
+- Output: Compiled `.class` files in `out/` folder
+
+**Step 2: Run the CLI**
+```bash
+java -cp "out;lib\mysql-connector-j-9.6.0.jar" foodbridge.Main
+```
+- **Important:** Include `lib\mysql-connector-j-9.6.0.jar` in classpath for database access
+- Semicolon `;` separates multiple classpath entries
+
+**Step 3: Log In**
+Use the same credentials as web app, choose role (1=Donor, 2=NGO, 3=Admin)
 
 ### CLI Features
-- Donor Interface: Create and track donations
-- NGO Interface: View available donations and claim them
-- Terminal-based menu system
+
+**Donor Menu:**
+```
+1. Add New Donation
+2. View My Donations
+3. View Live NGO Requests  ← NEW! See what NGOs need
+4. Platform Impact Stats
+5. Logout
+```
+
+**NGO Menu:**
+```
+1. View Available Food
+2. Claim a Donation
+3. My Claim History
+4. Platform Impact Stats
+5. Logout
+```
+
+**Admin Menu:**
+```
+ℹ️ Admin features available at: http://localhost:8080/admin.html
+```
+(Admin redirects to web dashboard)
+
+### Live Refresh in CLI
+
+Option 3 (NGO Requests) and Option 1 (Available Food) support **live refresh:**
+- Press **Enter** to refresh data
+- Type **B** to go back
+- Refreshes automatically to show latest requests/donations
 
 ---
 
-## 🔄 Real-Time Updates
+## 🔄 Real-Time Updates (Both Web & CLI)
 
-Both web and CLI interfaces show **live updates**:
+Both interfaces update live every **2-3 seconds**:
 
-- **Donations Update:** Every 2 seconds (refreshes donation list)
-- **Claims Update:** Every 2 seconds (shows newly claimed items)
-- **Expiry Status:** Every 2-3 seconds (auto-marks expired donations)
-- **Admin Analytics:** Every 3 seconds (updates statistics)
+| Update | Frequency | Example |
+|--------|-----------|---------|
+| Donations | 2 seconds | New donations appear instantly |
+| NGO Requests | 2 seconds | See urgent food needs in real-time |
+| Claims | 2 seconds | Watch donations get claimed |
+| Expiry | 2-3 seconds | Expired donations auto-marked |
+| Analytics | 3 seconds | Stats update without refresh |
 
-*No manual refresh needed!*
+**Web:** Check browser DevTools (F12) → Network tab to see API calls  
+**CLI:** SQL queries shown in terminal `[SQL] ...`
 
 ---
 
 ## 🧪 Testing the Application
 
-### Web Application Testing
+### Quick Test Flow
 
-1. **Test Donor Flow:**
-   - Log in as donor
-   - Create a donation (fill food details)
-   - See it appear in "My Donations"
-   - Watch it get claimed by NGO (live update)
+**Web Test (5 minutes):**
+1. Open two browser tabs
+2. Tab 1: Log in as **Donor** (`saravana@donor.com`)
+3. Tab 2: Log in as **NGO** (`greenearth@ngo.com`)
+4. Tab 1: Create a donation → See it appear in "My Donations"
+5. Tab 2: On NGO dash, click "View Available Food" → See the new donation
+6. Tab 2: Click "Claim" → Watch donation disappear from Tab 1 (live update!)
 
-2. **Test NGO Flow:**
-   - Log in as NGO in another browser tab
-   - Click "View Available Donations"
-   - Click "Claim" on a donation
-   - Watch donation disappear from Donor's list (live update)
+**CLI Test (3 minutes):**
+1. Compile: `javac -encoding UTF-8 ...` (above)
+2. Run: `java -cp "out;lib\mysql-connector-j-9.6.0.jar" foodbridge.Main`
+3. Login as Donor (role 1)
+4. Select option 3 to see live NGO requests
+5. Press Enter to refresh, see SQL queries printed
 
-3. **Test Admin Dashboard:**
-   - Log in as admin
-   - View real-time statistics
-   - See donation/claim history
-   - Monitor platform metrics
-
-### Testing Real-Time Updates
-1. Open browser **Developer Tools** (F12)
-2. Go to **Network** tab
-3. Observe API calls every 2-3 seconds:
-   - `/api/donations` — Get donation list
-   - `/api/users` — Get user list
-   - `/api/claims` — Get claims
+### Verify Real-Time Updates
+```
+Web: F12 → Network tab → Observe API calls every 2-3 seconds
+CLI: Look for [SQL] log lines showing queries running
+```
 
 ---
 
 ## 🛠️ Troubleshooting
 
-### Port 8080 Already in Use
-```bash
-# Find process using port 8080
-netstat -ano | findstr :8080
+### ❌ MySQL Connection Failed
+**Error:** `[ERROR] Database connection unavailable`
+- **Cause:** MySQL server not running
+- **Fix:**
+  1. Start MySQL Server (Windows: Services or MySQL Workbench)
+  2. Verify: `mysql -u root -p` (should connect)
+  3. Retry the app
 
-# Kill the process (Windows)
-taskkill /PID <process_id> /F
+### ❌ CLI: "unmappable character" Error During Compile
+**Error:** `unmappable character (0x90) for encoding windows-1252`
+- **Cause:** Missing UTF-8 encoding flag
+- **Fix:** Use full compile command with `-encoding UTF-8`:
+  ```bash
+  javac -encoding UTF-8 -cp lib\mysql-connector-j-9.6.0.jar -d out src\foodbridge\Main.java src\foodbridge\dao\*.java src\foodbridge\models\*.java src\foodbridge\ui\*.java
+  ```
 
-# Or use a different port
-java -jar target\foodbridge-web-1.0.0.jar --server.port=8081
-```
+### ❌ CLI: "ClassNotFoundException: com.mysql.cj.jdbc.Driver"
+**Error:** `java.lang.ClassNotFoundException: com.mysql.cj.jdbc.Driver`
+- **Cause:** MySQL driver not in classpath
+- **Fix:** Run with driver included:
+  ```bash
+  java -cp "out;lib\mysql-connector-j-9.6.0.jar" foodbridge.Main
+  ```
 
-### Database Connection Failed
-```
-ERROR: Access denied for user 'root'@'localhost'
-```
-**Solution:**
-1. Ensure MySQL is running: `mysql -u root -p`
-2. Check credentials in `application.properties`
-3. Verify database exists: `SHOW DATABASES;`
+### ❌ Web: Port 8080 Already in Use
+**Error:** `Address already in use: bind`
+- **Fix Option 1:** Kill existing process
+  ```bash
+  netstat -ano | findstr :8080
+  taskkill /PID <process_id> /F
+  ```
+- **Fix Option 2:** Use different port
+  ```bash
+  java -jar target\foodbridge-web-1.0.0.jar --server.port=8081
+  ```
+  Then open: `http://localhost:8081`
 
-### Build Fails
-```bash
-# Clean and rebuild
-mvn clean install
+### ❌ Web: Invalid Login Credentials
+**Error:** `❌ Invalid credentials`
+- **Check:** Credentials in table above (use `saravana@donor.com`, not `donor1@email.com`)
+- **Check:** Database initialized: `mysql< -u root -p foodbridge_db` → `SELECT COUNT(*) FROM Users;`
 
-# Skip tests if issues persist
-mvn clean package -DskipTests
-```
-
-### Cannot Find Java
-```bash
-# Set JAVA_HOME (Windows)
-set JAVA_HOME=C:\Program Files\Java\jdk-17
-java -version
-```
-
-### Application Won't Start
-- Check logs for error messages
-- Ensure port 8080 is available
-- Verify MySQL database is running
-- Check file permissions in project directory
+### ❌ Maven Build Fails
+**Error:** `[ERROR] BUILD FAILURE`
+- **Fix:** Clean and rebuild
+  ```bash
+  mvn clean install
+  ```
+  Or skip tests:
+  ```bash
+  mvn clean package -DskipTests
+  ```
 
 ---
 
@@ -229,93 +302,136 @@ java -version
 
 ```
 FoodBridge/
-├── src/main/java/
-│   └── com/foodbridge/web/
-│       ├── FoodBridgeWebApplication.java (Spring Boot)
-│       ├── controller/ApiController.java (REST endpoints)
-│       ├── service/FoodBridgeService.java (Business logic)
-│       └── dto/ (Data Transfer Objects)
+├── src/main/java/com/foodbridge/web/
+│   ├── FoodBridgeWebApplication.java      ← Spring Boot entry
+│   ├── controller/ApiController.java       ← REST endpoints
+│   ├── service/FoodBridgeService.java      ← Business logic
+│   └── dto/                                ← Data Transfer Objects
 ├── src/main/resources/
-│   ├── static/ (HTML, CSS, JS files)
-│   └── application.properties (Database config)
-├── src/foodbridge/ (CLI application)
-│   ├── Main.java
-│   ├── dao/ (Database access)
-│   ├── models/ (Data models)
-│   └── ui/ (Terminal UI)
-├── sql/schema.sql (Database schema)
-├── pom.xml (Maven configuration)
-└── target/foodbridge-web-1.0.0.jar (Built application)
+│   ├── static/                             ← HTML, CSS, JS (web dashboards)
+│   │   ├── index.html, donor.html, ngo.html, admin.html
+│   │   ├── app.js                          ← Real-time polling logic
+│   │   └── styles.css
+│   └── application.properties              ← Database config
+├── src/foodbridge/                         ← CLI application
+│   ├── Main.java                           ← CLI entry point
+│   ├── dao/DonationDAO.java, UserDAO.java  ← Database access
+│   ├── models/Donation.java, User.java     ← Data models
+│   └── ui/DonorUI.java, NGOUI.java        ← Terminal menus
+├── sql/schema.sql                          ← Database schema + sample data
+├── lib/mysql-connector-j-9.6.0.jar        ← MySQL JDBC driver
+├── pom.xml                                 ← Maven configuration
+└── target/foodbridge-web-1.0.0.jar        ← Built JAR (after mvn build)
 ```
 
 ---
 
-## 🌐 REST API Endpoints
+## 🌐 REST API Endpoints (Web Backend)
 
-The web application exposes REST endpoints for frontend communication:
+The web app communicates with backend via REST:
 
-### Authentication
+**Authentication:**
 - `POST /api/register` — Register new user
 - `POST /api/login` — User login
-- `GET /api/me` — Get current user
 
-### Donations
-- `GET /api/donations` — Get all available donations
-- `POST /api/donations` — Create new donation
+**Food Donations:**
+- `GET /api/donations` — Get available donations
+- `POST /api/donations` — Add new donation
 - `GET /api/donations/my-donations` — Get user's donations
 
-### NGO Operations
-- `GET /api/users` — Get all NGOs
+**NGO Requests (NEW):**
+- `GET /api/requests/open` — Get open NGO requests (live view)
+- `POST /api/requests` — Create new NGO request
+
+**Claims & Impact:**
 - `POST /api/claims` — Claim a donation
 - `GET /api/claims` — Get all claims
-
-### Admin
 - `GET /api/stats` — Get platform statistics
-- `GET /api/admin/donations` — Get all donations
-- `GET /api/admin/claims` — Get all claims
-
-*Detailed API documentation in [DEPLOYMENT.md](DEPLOYMENT.md)*
 
 ---
 
-## 📚 Additional Resources
+## 🎯 Command Reference
 
-- [DEPLOYMENT.md](DEPLOYMENT.md) — Deploy to GitHub, Docker, Heroku, AWS
-- [LIVE_UPDATES_FLOW.md](LIVE_UPDATES_FLOW.md) — Real-time polling system explained
-- [doc/SETUP_GUIDE.md](doc/SETUP_GUIDE.md) — Detailed setup instructions
-- [doc/PROJECT_ARCHITECTURE.md](doc/PROJECT_ARCHITECTURE.md) — System design
-- [doc/TESTING.md](doc/TESTING.md) — Comprehensive testing guide
+### Build Commands
+```bash
+# Build only (no run)
+mvn clean package -DskipTests
+
+# Build + Run (development)
+mvn spring-boot:run
+
+# Full build with tests
+mvn clean install
+```
+
+### Run Commands
+```bash
+# Web Application (Option 1)
+mvn spring-boot:run
+
+# Web Application (Option 2)
+java -jar target\foodbridge-web-1.0.0.jar
+
+# Web Application (Different Port)
+java -jar target\foodbridge-web-1.0.0.jar --server.port=8081
+
+# CLI Application (Complete)
+javac -encoding UTF-8 -cp lib\mysql-connector-j-9.6.0.jar -d out src\foodbridge\Main.java src\foodbridge\dao\*.java src\foodbridge\models\*.java src\foodbridge\ui\*.java && java -cp "out;lib\mysql-connector-j-9.6.0.jar" foodbridge.Main
+```
+
+### Database Commands
+```bash
+# Initialize database (one-time)
+mysql -u root -p < sql/schema.sql
+
+# Login to database
+mysql -u root -p
+
+# Check foodbridge database
+mysql -u root -p foodbridge_db
+```
 
 ---
 
 ## ✅ Verification Checklist
 
-- [ ] Java 17+ installed `java -version`
-- [ ] Maven 3.9+ installed `mvn -version`
-- [ ] MySQL is running and database created
-- [ ] Project builds successfully `mvn clean package -DskipTests`
-- [ ] Application starts on `http://localhost:8080`
-- [ ] Can log in with test credentials
-- [ ] Real-time updates working (check Network tab)
-- [ ] Admin dashboard showing statistics
+Before running, verify:
+
+- [ ] Java 17+: `java -version`
+- [ ] Maven 3.9+: `mvn -version`
+- [ ] MySQL 8.0+ running: `mysql -u root -p`
+- [ ] Database created: `sql/schema.sql` run successfully
+- [ ] Driver present: `lib/mysql-connector-j-9.6.0.jar` exists
+- [ ] Backdoor: Connection works in Java
 
 ---
 
-## 🎯 Quick Start (30 seconds)
+## 📚 Documentation
 
+- **[README.md](README.md)** — Project overview, features, architecture
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** — Deploy to GitHub, Docker, Heroku, AWS
+- **[LIVE_UPDATES_FLOW.md](LIVE_UPDATES_FLOW.md)** — Real-time polling explained
+- **[doc/ARCHITECTURE.md](doc/ARCHITECTURE.md)** — Detailed system design
+- **[doc/API_REFERENCE.md](doc/API_REFERENCE.md)** — Full REST API docs
+- **[doc/CONTRIBUTING.md](doc/CONTRIBUTING.md)** — Code style guide
+
+---
+
+## 🎯 30-Second Quick Start
+
+### For Web Dashboard (FASTEST)
 ```bash
-# 1. Build the project
-mvn clean package -DskipTests
-
-# 2. Run the application
-java -jar target\foodbridge-web-1.0.0.jar
-
-# 3. Open in browser
-# http://localhost:8080
-
-# 4. Log in with: donor1@email.com / password
+mvn spring-boot:run
 ```
+Then open: `http://localhost:8080` and login with `saravana@donor.com` / `donor123`
+
+### For CLI Terminal (ONE-LINER)
+```bash
+javac -encoding UTF-8 -cp lib\mysql-connector-j-9.6.0.jar -d out src\foodbridge\Main.java src\foodbridge\dao\*.java src\foodbridge\models\*.java src\foodbridge\ui\*.java && java -cp "out;lib\mysql-connector-j-9.6.0.jar" foodbridge.Main
+```
+Then login with `saravana@donor.com` / `donor123` (role 1 for donor)
 
 ---
 
-**Status:** ✅ Application is currently running on http://localhost:8080
+**Last Updated:** April 8, 2026  
+**Status:** ✅ Application ready for development & testing

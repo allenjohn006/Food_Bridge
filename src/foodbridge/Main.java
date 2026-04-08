@@ -58,12 +58,13 @@ public class Main {
         System.out.println(  "  ║     🔐 LOGIN     ║");
         System.out.println(  "  ╚══════════════════╝");
 
-        System.out.println("  Role:  1. Donor   2. NGO");
+        System.out.println("  Role:  1. Donor   2. NGO   3. Admin");
         System.out.print  ("  Select role: ");
         String roleChoice = sc.nextLine().trim();
         String role = switch (roleChoice) {
             case "1" -> "DONOR";
             case "2" -> "NGO";
+            case "3" -> "ADMIN";
             default  -> "";
         };
         if (role.isEmpty()) { System.out.println("  ⚠️  Invalid role."); return; }
@@ -84,8 +85,11 @@ public class Main {
 
         if (user.getRole().equals("DONOR")) {
             new DonorUI(sc, user).show();
-        } else {
+        } else if (user.getRole().equals("NGO")) {
             new NGOUI(sc, user).show();
+        } else if (user.getRole().equals("ADMIN")) {
+            System.out.println("\n  ℹ️  Admin features are available at: http://localhost:8080/admin.html");
+            System.out.println("  Please open a web browser and navigate to the admin dashboard.");
         }
     }
 
@@ -95,12 +99,13 @@ public class Main {
         System.out.println(  "  ║    📝  REGISTER      ║");
         System.out.println(  "  ╚══════════════════════╝");
 
-        System.out.println("  Role:  1. Donor (Restaurant/Hotel)   2. NGO/Charity");
+        System.out.println("  Role:  1. Donor (Restaurant/Hotel)   2. NGO/Charity   3. Admin");
         System.out.print  ("  Select role: ");
         String roleChoice = sc.nextLine().trim();
         String role = switch (roleChoice) {
             case "1" -> "DONOR";
             case "2" -> "NGO";
+            case "3" -> "ADMIN";
             default  -> "";
         };
         if (role.isEmpty()) { System.out.println("  ⚠️  Invalid role."); return; }

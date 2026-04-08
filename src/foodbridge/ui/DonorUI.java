@@ -29,8 +29,9 @@ public class DonorUI {
             System.out.println("  ╠════════════════════════════════════════╣");
             System.out.println("  ║  1.  Add New Donation                  ║");
             System.out.println("  ║  2.  View My Donations                 ║");
-            System.out.println("  ║  3.  Platform Impact Stats             ║");
-            System.out.println("  ║  4.  Logout                            ║");
+            System.out.println("  ║  3.  View Live NGO Requests            ║");
+            System.out.println("  ║  4.  Platform Impact Stats             ║");
+            System.out.println("  ║  5.  Logout                            ║");
             System.out.println("  ╚════════════════════════════════════════╝");
             System.out.print  ("  Choice: ");
 
@@ -38,9 +39,22 @@ public class DonorUI {
             switch (choice) {
                 case "1" -> addDonation();
                 case "2" -> viewMyDonations();
-                case "3" -> donationDAO.printImpactStats();
-                case "4" -> { System.out.println("\n  👋  Logged out. Thank you for reducing waste!"); return; }
-                default  -> System.out.println("  ⚠️  Invalid option. Try 1-4.");
+                case "3" -> viewLiveNgoRequests();
+                case "4" -> donationDAO.printImpactStats();
+                case "5" -> { System.out.println("\n  👋  Logged out. Thank you for reducing waste!"); return; }
+                default  -> System.out.println("  ⚠️  Invalid option. Try 1-5.");
+            }
+        }
+    }
+
+    // ── LIVE NGO REQUESTS ────────────────────────────────────────────────
+    private void viewLiveNgoRequests() {
+        while (true) {
+            donationDAO.printOpenNgoRequests();
+            System.out.print("\n  Press Enter to refresh (live), or type B to go back: ");
+            String input = sc.nextLine().trim();
+            if (input.equalsIgnoreCase("b")) {
+                return;
             }
         }
     }

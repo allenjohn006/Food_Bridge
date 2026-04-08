@@ -76,12 +76,14 @@ public class DonationDAO {
         try {
             PreparedStatement sel = con.prepareStatement(selectSql);
             sel.setString(1, itemName);
+            System.out.println("[SQL] " + selectSql);
             ResultSet rs = sel.executeQuery();
             if (rs.next()) return rs.getInt("item_id");
 
             // Not found → insert
             PreparedStatement ins = con.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
             ins.setString(1, itemName);
+            System.out.println("[SQL] " + insertSql);
             ins.executeUpdate();
             ResultSet keys = ins.getGeneratedKeys();
             if (keys.next()) return keys.getInt(1);
@@ -268,6 +270,59 @@ public class DonationDAO {
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
+    // ── OPEN NGO REQUESTS (DONOR LIVE VIEW) ─────────────────────────────
+    /**
+     * SELECT open NGO requests so donors can fulfill urgent needs.
+     * Demonstrates: JOIN + WHERE + ORDER BY.
+     */
+    public void printOpenNgoRequests() {
+        String sql =
+            "SELECT r.request_id, u.name AS ngo_name, r.item_name, r.quantity_needed, " +
+            "       COALESCE(r.notes, '-') AS notes, " +
+            "       DATE_FORMAT(r.created_at, '%d-%m-%Y %H:%i') AS created_at " +
+            "FROM NGO_Requests r " +
+            "INNER JOIN Users u ON r.ngo_id = u.user_id " +
+            "WHERE r.status = 'OPEN' " +
+            "ORDER BY r.created_at DESC";
+
+        Connection con = DBConnection.getConnection();
+        if (con == null) {
+            System.err.println("[ERROR] Database connection unavailable.");
+            return;
+        }
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            System.out.println("\n[SQL] " + sql);
+            ResultSet rs = ps.executeQuery();
+
+            System.out.println("\n  ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐");
+            System.out.println(  "  │                                         LIVE NGO REQUESTS                                               │");
+            System.out.println(  "  ├──────┬─────────────────────┬─────────────────────┬──────────────┬──────────────────────────┬──────────────┤");
+            System.out.println(  "  │ Req# │ NGO                 │ Item Needed         │ Qty Needed   │ Notes                    │ Requested At │");
+            System.out.println(  "  ├──────┼─────────────────────┼─────────────────────┼──────────────┼──────────────────────────┼──────────────┤");
+
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                System.out.printf("  │ %-4d │ %-19s │ %-19s │ %-12s │ %-24s │ %-12s │%n",
+                    rs.getInt("request_id"),
+                    trimCell(rs.getString("ngo_name"), 19),
+                    trimCell(rs.getString("item_name"), 19),
+                    trimCell(rs.getString("quantity_needed"), 12),
+                    trimCell(rs.getString("notes"), 24),
+                    trimCell(rs.getString("created_at"), 12));
+            }
+
+            if (!found) {
+                System.out.println("  │                           No open NGO requests right now. Check again soon.                             │");
+            }
+            System.out.println("  └──────┴─────────────────────┴─────────────────────┴──────────────┴──────────────────────────┴──────────────┘");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     // ── IMPACT STATISTICS (Aggregate Queries) ─────────────────────────────
     /**
      * Uses COUNT(), SUM() aggregate functions.
@@ -341,5 +396,12 @@ public class DonationDAO {
             rs.getString("expiry_at"),
             rs.getString("status")
         );
+    }
+
+    private String trimCell(String value, int width) {
+        if (value == null) return "-";
+        if (value.length() <= width) return value;
+        if (width <= 3) return value.substring(0, width);
+        return value.substring(0, width - 3) + "...";
     }
 }

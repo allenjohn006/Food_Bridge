@@ -1,12 +1,35 @@
-# 🌱 FoodBridge — Full-Stack Food Donation Platform
+# 🌱 FoodBridge
 
-> **A dual-interface application connecting food donors (restaurants, hotels) with NGOs to eliminate food waste and improve food security.**
+> **A full-stack platform connecting food donors (restaurants, hotels) with NGOs to eliminate food waste and improve food security in real-time.**
 
-**Dual Architecture:** Terminal CLI + Modern Web Dashboard  
-**Backend:** Java (Spring Boot 3.3.5) + REST API  
-**Database:** MySQL 8.0 with JDBC  
-**Frontend:** Vanilla HTML5, CSS3, JavaScript with Live Polling  
-**Build Tool:** Maven  
+[![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=java)](https://www.java.com)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?logo=mysql)](https://www.mysql.com)
+[![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-yellow?logo=javascript)](https://developer.mozilla.org/docs/Web/JavaScript)
+[![Maven](https://img.shields.io/badge/Maven-3.9-red?logo=apachemaven)](https://maven.apache.org)
+
+**Live Demo:** http://localhost:8080 (after running locally)  
+**Dual Interfaces:** Web Dashboard + Terminal CLI  
+**Database:** MySQL 8.0 with JDBC + Transactions  
+**Real-Time:** Client-side polling (2-3 second intervals)  
+**Build:** Maven 3.9+  
+
+---
+
+## ⚡ What FoodBridge Solves
+
+**The Problem:**
+- Restaurants/hotels waste ~30% of food daily
+- NGOs struggle to find food sources for distribution
+- No coordination platform exists
+- Impact metrics unknown
+
+**The Solution:**
+- One-click donation posting from restaurants
+- Real-time visibility for NGOs to claim food
+- Automatic expiry tracking (no stale food)
+- Live impact dashboard (meals fed, waste reduced)
+- Zero friction — claims processed instantly
 
 ---
 
@@ -31,13 +54,32 @@
 - ✅ View all users, donations, and requests
 - ✅ Manual donation expiry action
 
-### ⚡ **Live Update System**
-- ✅ **Polling-based real-time updates** (2-3 second intervals)
-- ✅ NGO requests disappear when fulfilled
-- ✅ Donations show status changes instantly
-- ✅ Auto-expiry of stale donations on every read
-- ✅ Claim notifications appear immediately
-- ✅ Admin analytics refresh live
+### ⚡ **Real-Time Live Updates**
+- ✅ **Polling-based sync** (2-3 second intervals)
+- ✅ Donations appear/disappear instantly when claimed
+- ✅ Status changes: AVAILABLE → CLAIMED → EXPIRED
+- ✅ Auto-expiry logic runs before every read
+- ✅ No page refresh needed
+- ✅ Network requests visible in DevTools (verify polling)
+
+---
+
+## 🔄 How It Works (30-Second Overview)
+
+```
+1. DONOR POSTS
+   └─ "I have 10kg rice, expires 6pm" → Database
+
+2. SYSTEM BROADCASTS  
+   └─ Every 2 seconds: "Here are active donations" → All NGOs
+
+3. NGO CLAIMS
+   └─ "Claiming rice for shelter" → Database + Donor notifications
+
+4. LIVE UPDATES
+   └─ Donor sees: "Your rice was claimed by Shelter X"
+   └─ Admin sees: "1 meal = 1 portion served to someone in need"
+```
 
 ---
 

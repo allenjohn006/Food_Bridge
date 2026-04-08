@@ -240,16 +240,67 @@ INSERT INTO Impact_Log VALUES
 
 ## 🔗 Relationships Diagram
 
-```
-Users (1) ──────→ (Many) Donation_Pool
-  ↑                         ↓
-  │                      (1)→(1) Claims
-  │                              ↓
-  └──────────────────────────── FK ngo_id
+```mermaid
+erDiagram
+    USERS ||--o{ DONATION_POOL : donates
+    USERS ||--o{ NGO_REQUESTS : creates
+    USERS ||--o{ CLAIMS : makes
+    FOOD_ITEMS ||--o{ DONATION_POOL : contains
+    DONATION_POOL ||--|| CLAIMS : "claimed_by"
+    DONATION_POOL ||--|| IMPACT_LOG : "tracks"
+    NGO_REQUESTS }o--|| DONATION_POOL : "fulfilled_by"
 
-Donation_Pool ──→ Food_Items (Catalogue)
+    USERS {
+        int user_id PK
+        string name
+        enum role "DONOR, NGO, ADMIN"
+        string phone
+        string email UK
+        string password
+        datetime created_at
+    }
 
-Donation_Pool (1) ──→ (1) Impact_Log
+    FOOD_ITEMS {
+        int item_id PK
+        string item_name
+        enum category "VEG, NON-VEG, BEVERAGE, BAKERY, OTHER"
+    }
+
+    DONATION_POOL {
+        int donation_id PK
+        int donor_id FK
+        int item_id FK
+        string quantity
+        datetime expiry_at
+        enum status "AVAILABLE, CLAIMED, EXPIRED"
+        int request_id FK
+        datetime created_at
+    }
+
+    NGO_REQUESTS {
+        int request_id PK
+        int ngo_id FK
+        string item_name
+        string quantity_needed
+        string notes
+        enum status "OPEN, FULFILLED, CANCELLED"
+        int fulfilled_donation_id FK
+        datetime created_at
+    }
+
+    CLAIMS {
+        int claim_id PK
+        int donation_id FK UK
+        int ngo_id FK
+        datetime claim_time
+    }
+
+    IMPACT_LOG {
+        int log_id PK
+        int donation_id FK UK
+        int meals_fed
+        datetime logged_at
+    }
 ```
 
 ---
